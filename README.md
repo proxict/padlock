@@ -1,6 +1,7 @@
 Padlock
 =======
 This is a very simple approach of a screen locker for i3wm (and possibly other WMs/DEs).
+![lockscreen screenshot](lockscreen.png)
 
 Building
 --------
