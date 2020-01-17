@@ -51,7 +51,7 @@ padlock $(blur $(screenshot))
 
 Disclaimer:
 -----------
-*Plese, keep in mind, this is not a cryptographically secure product as I'm using simple `std::string` without any custom allocators for the password input.
+*Please, keep in mind, this is not a cryptographically secure product as I'm using simple `std::string` without any custom allocators for the password input.
 Nor there is any kind of `mlock` to prevent any part of the memory to be swapped to the swap area or dumped in case of a crash of the process. Use at your own risk.*
 
 Also, the code is fairly old :)
