@@ -28,7 +28,7 @@ padlock image.png
 ```
 The way I use this application is that I take a screenshot of my screen, blur the screenshot and use the blurred image as an input for the padlock.
 For that I have two simple scripts:  
-screenshot:
+screenshot: *(requires scrot)*
 ```bash
 #!/bin/bash
 
