@@ -24,15 +24,15 @@ target_include_directories(padlock
 )
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTKMM3 REQUIRED gtkmm-3.0)
+pkg_check_modules(GTKMM4 REQUIRED gtkmm-4.0)
 
-include_directories(${GTKMM3_INCLUDE_DIRS})
-link_directories(${GTKMM3_LIBRARY_DIRS})
-add_definitions(${GTKMM3_CFLAGS_OTHER})
+include_directories(${GTKMM4_INCLUDE_DIRS})
+link_directories(${GTKMM4_LIBRARY_DIRS})
+add_definitions(${GTKMM4_CFLAGS_OTHER})
 
 target_link_libraries(padlock
     PRIVATE pam
-    PRIVATE ${GTKMM3_LIBRARIES}
+    PRIVATE ${GTKMM4_LIBRARIES}
 )
 
 target_compile_options(padlock PRIVATE

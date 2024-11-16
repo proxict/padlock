@@ -4,10 +4,10 @@
 #include "padlock/Padlock.hpp"
 
 static int runGuiApp(const std::string& imagePath) {
-    pid_t pid = fork();
-    if (pid != 0) { // exit in parent process
-        return 0;
-    }
+    //pid_t pid = fork();
+    //if (pid != 0) { // exit in parent process
+    //    return 0;
+    //}
 
     try {
         padlock::Padlock padlock(imagePath);

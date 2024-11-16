@@ -33,6 +33,10 @@ padlock::Padlock::Padlock(const std::string& imagePath)
 
     padlockGui.callOnSleepButtonClick([]() { system("systemctl suspend"); });
 
-    app->run(padlockGui);
-}
+    app->signal_activate().connect([&]() {
+        app->add_window(padlockGui);
+        padlockGui.present();
+    });
 
+    app->run();
+}

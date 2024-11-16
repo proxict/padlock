@@ -1,21 +1,23 @@
 #ifndef PADLOCK_GUI_PADLOCKWINDOW_HPP
 #define PADLOCK_GUI_PADLOCKWINDOW_HPP
 
-#define GDKMM_DISABLE_DEPRECATED 1
+//#define GDKMM_DISABLE_DEPRECATED 1
+//#define GTKMM_DISABLE_DEPRECATED 1
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
+#include <gtkmm/application.h>
 #include <gdkmm.h>
 #include <gdkmm/display.h>
 #include <gdkmm/monitor.h>
-#include <gdkmm/screen.h>
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/fixed.h>
+#include <gtkmm/cssprovider.h>
 #include <gtkmm/image.h>
 #include <gtkmm/overlay.h>
 #include <gtkmm/stylecontext.h>
@@ -45,7 +47,6 @@ public:
 
 private:
     Gtk::Overlay mOverlay;
-    Gtk::Image mBackground;
     Gtk::Box mBoxLayout;
 
     Gtk::Entry mPasswordInput;
@@ -56,8 +57,6 @@ private:
         std::function<void()> onSleepButton;
     } mCallbacks;
 
-    void stretchWindowFullscreen();
-
     void setWindowProperties();
 
     void overrideWM();
@@ -66,9 +65,7 @@ private:
 
     void configureSleepButton();
 
-    static void onTogglePasswordVisibility([[maybe_unused]] Gtk::EntryIconPosition icon_pos,
-                                           [[maybe_unused]] const GdkEventButton* event,
-                                           Gtk::Entry* entry);
+    static void onTogglePasswordVisibility(Gtk::Entry* entry);
 
     void onPasswordEnter();
 
