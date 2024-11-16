@@ -32,17 +32,17 @@ screenshot: *(requires scrot)*
 ```bash
 #!/bin/bash
 
-scrot $(mktemp).png -e 'ls $f'
+scrot -F "$(mktemp -u).png" -q 30 -e 'ls $f'
 ```
 blur: *(requires imagemagick)*
 ```bash
 #!/bin/bash
 
-[ ! -f $1 ] && echo "Usage: blur <img>" && exit 1
+[ ! -f "$1" ] && echo "Usage: blur <img>" && exit 1
 
-out=$(mktemp)
-convert -scale 10% -blur 0x2.5 -resize 1000% $1 $out
-command ls $out
+out="$(mktemp -u).png"
+magick "$1" -scale 10% -blur 0x2.5 -resize 1000% "${out}"
+ls "${out}"
 ```
 Then, call the application like this:
 ```bash
