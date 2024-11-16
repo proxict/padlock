@@ -1,7 +1,7 @@
 #include <iostream>
 #include <unistd.h> // fork
 
-#include "padlock/Padlock.h"
+#include "padlock/Padlock.hpp"
 
 static int runGuiApp(const std::string& imagePath) {
     pid_t pid = fork();
@@ -15,8 +15,7 @@ static int runGuiApp(const std::string& imagePath) {
         std::cerr << "Error: " << e.what() << '\n';
         return 1;
     }
-
-    return 2; // This should never be executed
+    return 0;
 }
 
 int main(int argc, char** argv) {
