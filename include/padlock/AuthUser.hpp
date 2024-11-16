@@ -3,7 +3,6 @@
 
 #include "padlock/pam.hpp"
 
-#include <optional>
 #include <string>
 
 namespace padlock {
@@ -12,9 +11,9 @@ class AuthUser final {
 public:
     AuthUser(const std::string& username);
 
-    bool authenticate(const std::string& password);
+    bool authenticate(std::string password);
 
-    ~AuthUser() noexcept;
+    ~AuthUser() = default;
 
     AuthUser(const AuthUser&) = delete;
     AuthUser& operator=(const AuthUser&) = delete;
@@ -23,10 +22,8 @@ public:
     AuthUser& operator=(AuthUser&&) = delete;
 
 private:
-    void clearResponse();
-
     pam::Context mPamCtx;
-    std::optional<pam_response> mResponse;
+    std::string mPassword;
 };
 
 } // namespace padlock

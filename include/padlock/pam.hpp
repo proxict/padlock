@@ -51,6 +51,8 @@ namespace pam {
 
         [[nodiscard]] ValidationStatus validate(int flags = 0);
 
+        operator bool() const { return mHandle != nullptr; }
+
         pam_handle_t* handle() { return mHandle; }
 
         operator pam_handle_t*() { return mHandle; }
