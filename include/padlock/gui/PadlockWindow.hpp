@@ -13,6 +13,7 @@
 #include <gdkmm.h>
 #include <gdkmm/display.h>
 #include <gdkmm/monitor.h>
+#include <gdkmm/toplevel.h>
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
 #include <gtkmm/entry.h>
@@ -22,6 +23,13 @@
 #include <gtkmm/overlay.h>
 #include <gtkmm/stylecontext.h>
 #include <gtkmm/window.h>
+
+#include <gdk/x11/gdkx.h>
+#include <gdk/x11/gdkx11display.h>
+#include <gdk/x11/gdkx.h>
+#include <gdk/gdktoplevel.h>
+#include <X11/Xlib.h>
+#include <X11/cursorfont.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

@@ -1,6 +1,7 @@
 #include "padlock/gui/PadlockWindow.hpp"
 
 // #include "padlock/Exception.hpp"
+#include <iostream>
 
 [[maybe_unused]] inline std::string&
 replaceAllInplace(std::string& str, const std::string& from, const std::string& to) {
@@ -12,10 +13,83 @@ replaceAllInplace(std::string& str, const std::string& from, const std::string& 
     return str;
 }
 
+static void set_override_redirect(GdkSurface* surface, bool enable) {
+    Display* display = GDK_SURFACE_XDISPLAY(surface);
+    Window x11_window = GDK_SURFACE_XID(surface);
+    XSetWindowAttributes attrs;
+    attrs.override_redirect = enable ? True : False;
+    XChangeWindowAttributes(display, x11_window, CWOverrideRedirect, &attrs);
+    XFlush(display);
+}
+
+static bool grab_pointer(GdkSurface* surface) {
+    Display* display = GDK_SURFACE_XDISPLAY(surface);
+    Window x11_window = GDK_SURFACE_XID(surface);
+
+    const int result = XGrabPointer(display,
+                                    x11_window,
+                                    True,
+                                    ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                                    GrabModeAsync,
+                                    GrabModeAsync,
+                                    None,
+                                    XCreateFontCursor(display, XC_arrow),
+                                    CurrentTime);
+
+    if (result != GrabSuccess) {
+        std::cout << "Failed to grab pointer: " << result << std::endl;
+    }
+
+    return result == GrabSuccess;
+}
+
+static bool grab_keyboard(GdkSurface* surface) {
+    Display* display = GDK_SURFACE_XDISPLAY(surface);
+    Window x11_window = GDK_SURFACE_XID(surface);
+    const int result = XGrabKeyboard(display, x11_window, True, GrabModeAsync, GrabModeAsync, CurrentTime);
+    if (result != GrabSuccess) {
+        std::cout << "Failed to grab keyboard: " << result << std::endl;
+    }
+    return result == GrabSuccess;
+}
+
+static void ungrab_all(Display* display) {
+    XUngrabPointer(display, CurrentTime);
+    XUngrabKeyboard(display, CurrentTime);
+    XFlush(display);
+}
+
+static void forward_key_event(Display* display, XKeyEvent& xkey, bool is_pressed) {
+    // Modify the event to re-inject it
+    xkey.type = is_pressed ? KeyPress : KeyRelease;
+
+    // Re-inject the event into the X11 event queue
+    XSendEvent(display, xkey.window, True, KeyPressMask | KeyReleaseMask, reinterpret_cast<XEvent*>(&xkey));
+    XFlush(display);
+}
+
+static void process_x11_events(Display* display) {
+    XEvent event;
+
+    while (true) {
+        XNextEvent(display, &event);
+
+        // Process the event and forward it to X11
+        switch (event.type) {
+        case KeyPress:
+        case KeyRelease:
+            forward_key_event(display, event.xkey, event.type == KeyPress);
+            break;
+
+        default:
+            break;
+        }
+    }
+}
+
 padlock::PadlockGui::PadlockGui(const std::string& imgPath)
     : mBoxLayout(Gtk::Orientation::VERTICAL) {
     setWindowProperties();
-    overrideWM();
 
     configurePasswordEntry();
     configureSleepButton();
@@ -26,6 +100,16 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
         auto primary_monitor = display->get_monitor_at_surface(surface);
         Gdk::Rectangle geometry;
         primary_monitor->get_geometry(geometry);
+
+        // XSizeHints hints;
+        // hints.flags = PAllHints;
+        // hints.x = 0;
+        // hints.y = 0;
+        // hints.width = geometry.get_width();
+        // hints.height = geometry.get_height();
+        // XSetNormalHints(gdk_x11_display_get_xdisplay(get_native()->get_surface()->get_display()->gobj()),
+        //                 GDK_SURFACE_XID(get_native()->get_surface()->gobj()),
+        //                 &hints);
 
         // auto monitors = display->get_monitors();
         // for (guint i = 0; i < monitors->get_n_items(); ++i) {
@@ -60,6 +144,45 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
 
         set_child(mOverlay);
         set_visible();
+        overrideWM();
+
+        // https://discourse.gnome.org/t/gtk-4-grab-keyboard/6251
+        // auto toplevels = get_toplevels();
+        // for (guint i = 0; i < toplevels->get_n_items(); ++i) {
+        //     if (auto toplevel = dynamic_cast<Gtk::Window*>(toplevels->get_object(i).get())) {
+        //         if (auto gdktoplevel = dynamic_cast<Gdk::Toplevel*>(toplevel->get_surface().get())) {
+        //             gdktoplevel->inhibit_system_shortcuts(nullptr);
+        //             std::cout << "Found valid Gdk::Toplevel" << std::endl;
+        //         }
+        //     }
+        // }
+
+        //process_x11_events(GDK_SURFACE_XDISPLAY(get_native()->get_surface()->gobj()));
+    });
+
+    // https://gitlab.gnome.org/GNOME/gtk/-/blob/e024a542b0e669cc9088edd88a098abc7e1fe5aa/gdk/wayland/gdkdevice-wayland.c#L4882
+    signal_map().connect([this]() {
+        // gdk_seat_grab(default_seat, window, GDK_SEAT_CAPABILITY_KEYBOARD);
+        auto seat = get_display()->get_default_seat();
+        seat->get_type();
+
+        GdkSurface* nativeSurface = get_native()->get_surface()->gobj();
+        if (grab_pointer(nativeSurface)) {
+            std::cout << "Grabbed pointer" << std::endl;
+        } else {
+            std::cout << "Failed to grab pointer" << std::endl;
+        }
+        if (grab_keyboard(nativeSurface)) {
+            std::cout << "Grabbed keyboard" << std::endl;
+        } else {
+            std::cout << "Failed to grab keyboard" << std::endl;
+        }
+    });
+
+    signal_unmap().connect([this]() {
+        GdkSurface* surface = get_native()->get_surface()->gobj();
+        ungrab_all(GDK_SURFACE_XDISPLAY(surface));
+        std::cout << "Ungrabbed all" << std::endl;
     });
 }
 
@@ -75,7 +198,9 @@ void padlock::PadlockGui::setWindowProperties() {
 void padlock::PadlockGui::overrideWM() {
     // TODO: GTK4 no longer handles seat grabs
 
-    // get_window()->set_override_redirect(true);
+    GdkSurface* surface = get_native()->get_surface()->gobj();
+    set_override_redirect(surface, true);
+
     // const auto grabSuccess =
     //     get_display()->get_default_seat()->grab(get_window(), Gdk::SEAT_CAPABILITY_ALL, true);
     // if (grabSuccess != Gdk::GRAB_SUCCESS) {
@@ -93,7 +218,6 @@ void padlock::PadlockGui::configurePasswordEntry() {
 
     mPasswordInput.signal_activate().connect(std::bind(&PadlockGui::onPasswordEnter, this));
     mPasswordInput.set_placeholder_text("Enter password");
-    mPasswordInput.grab_focus();
 }
 
 void padlock::PadlockGui::configureSleepButton() {
@@ -117,7 +241,8 @@ void padlock::PadlockGui::onPasswordEnter() {
 }
 
 void padlock::PadlockGui::onSleepButton() {
-    if (mCallbacks.onSleepButton) {
-        mCallbacks.onSleepButton();
-    }
+    close();
+    // if (mCallbacks.onSleepButton) {
+    //     mCallbacks.onSleepButton();
+    // }
 }

@@ -33,6 +33,7 @@ add_definitions(${GTKMM4_CFLAGS_OTHER})
 target_link_libraries(padlock
     PRIVATE pam
     PRIVATE ${GTKMM4_LIBRARIES}
+    PRIVATE X11
 )
 
 target_compile_options(padlock PRIVATE
