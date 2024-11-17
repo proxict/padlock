@@ -32,10 +32,18 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
 }
 
 void padlock::PadlockGui::stretchWindowFullscreen() {
-    // TODO: display image on all monitors, controls only on primary
-    Gdk::Rectangle rect;
-    get_display()->get_primary_monitor()->get_workarea(rect);
-    set_default_size(rect.get_width(), rect.get_height());
+    int maxHeight = 0, totalWidth = 0;
+    auto display = get_display();
+    const int numMonitors = display->get_n_monitors();
+    for (int i = 0; i < numMonitors; ++i) {
+        Gdk::Rectangle rect;
+        display->get_monitor(i)->get_workarea(rect);
+        totalWidth += rect.get_width();
+        if (rect.get_height() > maxHeight) {
+            maxHeight = rect.get_height();
+        }
+    }
+    set_default_size(totalWidth, maxHeight);
 }
 
 void padlock::PadlockGui::setWindowProperties() {
