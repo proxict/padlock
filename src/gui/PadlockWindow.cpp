@@ -74,7 +74,6 @@ static void process_x11_events(Display* display) {
     while (true) {
         XNextEvent(display, &event);
 
-        // Process the event and forward it to X11
         switch (event.type) {
         case KeyPress:
         case KeyRelease:
@@ -100,6 +99,7 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
         auto primary_monitor = display->get_monitor_at_surface(surface);
         Gdk::Rectangle geometry;
         primary_monitor->get_geometry(geometry);
+        set_default_size(geometry.get_width(), geometry.get_height());
 
         // XSizeHints hints;
         // hints.flags = PAllHints;
@@ -126,13 +126,10 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
             }
         )css";
         replaceAllInplace(style, "{IMG_PATH}", imgPath);
+        mOverlay.add_css_class("body");
         auto provider = Gtk::CssProvider::create();
         provider->load_from_string(style);
-        auto ctx = get_style_context();
-        ctx->add_class("body");
-        ctx->add_provider(provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
-
-        set_default_size(geometry.get_width(), geometry.get_height());
+        Gtk::StyleProvider::add_provider_for_display(display, provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 
         mBoxLayout.set_halign(Gtk::Align::CENTER);
         mBoxLayout.set_valign(Gtk::Align::CENTER);
@@ -157,7 +154,7 @@ padlock::PadlockGui::PadlockGui(const std::string& imgPath)
         //     }
         // }
 
-        //process_x11_events(GDK_SURFACE_XDISPLAY(get_native()->get_surface()->gobj()));
+        // process_x11_events(GDK_SURFACE_XDISPLAY(get_native()->get_surface()->gobj()));
     });
 
     // https://gitlab.gnome.org/GNOME/gtk/-/blob/e024a542b0e669cc9088edd88a098abc7e1fe5aa/gdk/wayland/gdkdevice-wayland.c#L4882

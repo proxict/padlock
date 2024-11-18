@@ -1,35 +1,35 @@
 #ifndef PADLOCK_GUI_PADLOCKWINDOW_HPP
 #define PADLOCK_GUI_PADLOCKWINDOW_HPP
 
-//#define GDKMM_DISABLE_DEPRECATED 1
-//#define GTKMM_DISABLE_DEPRECATED 1
+#define GDKMM_DISABLE_DEPRECATED 1
+#define GTKMM_DISABLE_DEPRECATED 1
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-#include <gtkmm/application.h>
 #include <gdkmm.h>
 #include <gdkmm/display.h>
 #include <gdkmm/monitor.h>
 #include <gdkmm/toplevel.h>
+#include <gtkmm/application.h>
 #include <gtkmm/box.h>
 #include <gtkmm/button.h>
-#include <gtkmm/entry.h>
-#include <gtkmm/fixed.h>
 #include <gtkmm/cssprovider.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/eventcontrollerkey.h>
+#include <gtkmm/fixed.h>
 #include <gtkmm/image.h>
 #include <gtkmm/overlay.h>
 #include <gtkmm/stylecontext.h>
 #include <gtkmm/window.h>
 
-#include <gdk/x11/gdkx.h>
-#include <gdk/x11/gdkx11display.h>
-#include <gdk/x11/gdkx.h>
-#include <gdk/gdktoplevel.h>
 #include <X11/Xlib.h>
 #include <X11/cursorfont.h>
+#include <gdk/gdktoplevel.h>
+#include <gdk/x11/gdkx.h>
+#include <gdk/x11/gdkx11display.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

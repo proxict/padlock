@@ -19,6 +19,8 @@ static int runGuiApp(const std::string& imagePath) {
 }
 
 int main(int argc, char** argv) {
+    // TODO:
+    std::cout << "!!! WARNING: THIS IS AN EXPERIMENTAL BUILD, DON'T USE IN PRODUCTION !!!\n";
     if (argc < 2) {
         std::cerr << "Usage: padlock <image-path>\n";
         return 1;
